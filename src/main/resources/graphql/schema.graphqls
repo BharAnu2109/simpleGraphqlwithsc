@@ -1,0 +1,318 @@
+# Customer Types
+type Customer {
+    id: ID!
+    firstName: String!
+    lastName: String!
+    email: String!
+    phoneNumber: String!
+    dateOfBirth: String
+    address: String
+    nationalId: String
+    status: CustomerStatus!
+    customerType: CustomerType!
+    creditScore: Float
+    accounts: [Account!]
+    loans: [Loan!]
+    creditCards: [CreditCard!]
+}
+
+enum CustomerStatus {
+    ACTIVE
+    INACTIVE
+    SUSPENDED
+    BLOCKED
+}
+
+enum CustomerType {
+    INDIVIDUAL
+    BUSINESS
+    PREMIUM
+    VIP
+}
+
+# Account Types
+type Account {
+    id: ID!
+    accountNumber: String!
+    accountType: AccountType!
+    balance: Float!
+    currency: String!
+    status: AccountStatus!
+    overdraftLimit: Float
+    interestRate: Float
+    openedDate: String
+    lastTransactionDate: String
+    customer: Customer!
+    transactions: [Transaction!]
+}
+
+enum AccountType {
+    SAVINGS
+    CHECKING
+    FIXED_DEPOSIT
+    MONEY_MARKET
+    INVESTMENT
+}
+
+enum AccountStatus {
+    ACTIVE
+    DORMANT
+    CLOSED
+    FROZEN
+}
+
+# Transaction Types
+type Transaction {
+    id: ID!
+    transactionId: String!
+    type: TransactionType!
+    amount: Float!
+    currency: String!
+    description: String
+    status: TransactionStatus!
+    transactionDate: String
+    referenceNumber: String
+    beneficiaryName: String
+    beneficiaryAccount: String
+    account: Account!
+    destinationAccount: Account
+}
+
+enum TransactionType {
+    DEPOSIT
+    WITHDRAWAL
+    TRANSFER
+    PAYMENT
+    FEE
+    INTEREST
+    REFUND
+}
+
+enum TransactionStatus {
+    PENDING
+    COMPLETED
+    FAILED
+    REVERSED
+    CANCELLED
+}
+
+# Loan Types
+type Loan {
+    id: ID!
+    loanNumber: String!
+    loanType: LoanType!
+    principalAmount: Float!
+    outstandingAmount: Float!
+    interestRate: Float!
+    tenureMonths: Int
+    monthlyPayment: Float
+    status: LoanStatus!
+    disbursementDate: String
+    maturityDate: String
+    nextPaymentDate: String
+    customer: Customer!
+}
+
+enum LoanType {
+    PERSONAL
+    HOME
+    AUTO
+    EDUCATION
+    BUSINESS
+}
+
+enum LoanStatus {
+    PENDING_APPROVAL
+    APPROVED
+    DISBURSED
+    ACTIVE
+    PAID_OFF
+    DEFAULTED
+    CLOSED
+}
+
+# CreditCard Types
+type CreditCard {
+    id: ID!
+    cardNumber: String!
+    cardHolderName: String!
+    cardType: CardType!
+    creditLimit: Float!
+    availableCredit: Float!
+    outstandingBalance: Float!
+    minimumPayment: Float
+    interestRate: Float
+    status: CardStatus!
+    issueDate: String
+    expiryDate: String
+    billingDate: String
+    paymentDueDate: String
+    customer: Customer!
+}
+
+enum CardType {
+    SILVER
+    GOLD
+    PLATINUM
+    TITANIUM
+    SIGNATURE
+}
+
+enum CardStatus {
+    ACTIVE
+    BLOCKED
+    EXPIRED
+    CANCELLED
+    SUSPENDED
+}
+
+# Input Types for Mutations
+input CreateCustomerInput {
+    firstName: String!
+    lastName: String!
+    email: String!
+    phoneNumber: String!
+    dateOfBirth: String
+    address: String
+    nationalId: String
+    customerType: CustomerType!
+}
+
+input UpdateCustomerInput {
+    id: ID!
+    firstName: String
+    lastName: String
+    phoneNumber: String
+    address: String
+    status: CustomerStatus
+    creditScore: Float
+}
+
+input CreateAccountInput {
+    customerId: ID!
+    accountType: AccountType!
+    initialBalance: Float!
+    currency: String!
+    overdraftLimit: Float
+}
+
+input CreateTransactionInput {
+    accountId: ID!
+    type: TransactionType!
+    amount: Float!
+    currency: String!
+    description: String
+    beneficiaryName: String
+    beneficiaryAccount: String
+    destinationAccountId: ID
+}
+
+input CreateLoanInput {
+    customerId: ID!
+    loanType: LoanType!
+    principalAmount: Float!
+    interestRate: Float!
+    tenureMonths: Int!
+}
+
+input LoanPaymentInput {
+    loanId: ID!
+    paymentAmount: Float!
+}
+
+input CreateCreditCardInput {
+    customerId: ID!
+    cardType: CardType!
+    creditLimit: Float!
+}
+
+input CreditCardPaymentInput {
+    cardId: ID!
+    paymentAmount: Float!
+}
+
+# Queries
+type Query {
+    # Customer Queries
+    getAllCustomers: [Customer!]!
+    getCustomerById(id: ID!): Customer
+    getCustomerByEmail(email: String!): Customer
+    getCustomersByStatus(status: CustomerStatus!): [Customer!]!
+    getCustomersByType(customerType: CustomerType!): [Customer!]!
+    
+    # Account Queries
+    getAllAccounts: [Account!]!
+    getAccountById(id: ID!): Account
+    getAccountByNumber(accountNumber: String!): Account
+    getAccountsByCustomerId(customerId: ID!): [Account!]!
+    getAccountsByType(accountType: AccountType!): [Account!]!
+    
+    # Transaction Queries
+    getAllTransactions: [Transaction!]!
+    getTransactionById(id: ID!): Transaction
+    getTransactionByTransactionId(transactionId: String!): Transaction
+    getTransactionsByAccountId(accountId: ID!): [Transaction!]!
+    getTransactionsByType(type: TransactionType!): [Transaction!]!
+    
+    # Loan Queries
+    getAllLoans: [Loan!]!
+    getLoanById(id: ID!): Loan
+    getLoanByNumber(loanNumber: String!): Loan
+    getLoansByCustomerId(customerId: ID!): [Loan!]!
+    getLoansByStatus(status: LoanStatus!): [Loan!]!
+    
+    # CreditCard Queries
+    getAllCreditCards: [CreditCard!]!
+    getCreditCardById(id: ID!): CreditCard
+    getCreditCardByNumber(cardNumber: String!): CreditCard
+    getCreditCardsByCustomerId(customerId: ID!): [CreditCard!]!
+    getCreditCardsByStatus(status: CardStatus!): [CreditCard!]!
+    
+    # Complex Queries
+    getCustomerFinancialSummary(customerId: ID!): CustomerFinancialSummary!
+    getAccountBalance(accountNumber: String!): Float!
+}
+
+# Complex response types
+type CustomerFinancialSummary {
+    customer: Customer!
+    totalAccountBalance: Float!
+    totalLoanOutstanding: Float!
+    totalCreditCardOutstanding: Float!
+    totalAvailableCredit: Float!
+    netWorth: Float!
+}
+
+# Mutations
+type Mutation {
+    # Customer Mutations
+    createCustomer(input: CreateCustomerInput!): Customer!
+    updateCustomer(input: UpdateCustomerInput!): Customer!
+    deleteCustomer(id: ID!): Boolean!
+    suspendCustomer(id: ID!): Customer!
+    activateCustomer(id: ID!): Customer!
+    
+    # Account Mutations
+    createAccount(input: CreateAccountInput!): Account!
+    closeAccount(id: ID!): Account!
+    freezeAccount(id: ID!): Account!
+    unfreezeAccount(id: ID!): Account!
+    
+    # Transaction Mutations
+    createTransaction(input: CreateTransactionInput!): Transaction!
+    depositMoney(accountId: ID!, amount: Float!, description: String): Transaction!
+    withdrawMoney(accountId: ID!, amount: Float!, description: String): Transaction!
+    transferMoney(fromAccountId: ID!, toAccountId: ID!, amount: Float!, description: String): Transaction!
+    
+    # Loan Mutations
+    applyForLoan(input: CreateLoanInput!): Loan!
+    approveLoan(loanId: ID!): Loan!
+    disburseLoan(loanId: ID!): Loan!
+    makeLoanPayment(input: LoanPaymentInput!): Loan!
+    
+    # CreditCard Mutations
+    issueCreditCard(input: CreateCreditCardInput!): CreditCard!
+    blockCreditCard(cardId: ID!): CreditCard!
+    unblockCreditCard(cardId: ID!): CreditCard!
+    makeCreditCardPayment(input: CreditCardPaymentInput!): CreditCard!
+}
