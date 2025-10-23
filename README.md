@@ -58,13 +58,15 @@ A comprehensive Spring Boot GraphQL application that implements a complete banki
 
 ## Getting Started
 
-### Build the Application
+### Option 1: Run with Java
+
+#### Build the Application
 
 ```bash
 mvn clean package
 ```
 
-### Run the Application
+#### Run the Application
 
 ```bash
 java -jar target/graphql-banking-app-1.0.0.jar
@@ -74,6 +76,24 @@ Or using Maven:
 
 ```bash
 mvn spring-boot:run
+```
+
+### Option 2: Run with Docker
+
+#### Using Docker Compose (Recommended)
+
+```bash
+docker-compose up --build
+```
+
+#### Using Docker directly
+
+```bash
+# Build the image
+docker build -t banking-graphql-app .
+
+# Run the container
+docker run -p 8080:8080 banking-graphql-app
 ```
 
 The application will start on `http://localhost:8080`
